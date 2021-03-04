@@ -3,9 +3,10 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import gsap from "gsap";
+import * as dat from "dat.gui";
 
-let scene, camera, renderer, controls, loader;
-let mouse = new THREE.Vector2();
+let scene, camera, renderer, controls, loader, raycaster, reticle, gui;
 
 const sizes = {
   width: window.innerWidth,
@@ -13,6 +14,7 @@ const sizes = {
 };
 
 scene = new THREE.Scene();
+gui = new dat.GUI();
 
 camera = new THREE.PerspectiveCamera(
   45,
@@ -21,22 +23,39 @@ camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.set(10, 0, 0);
+camera.position.set(10, 0, 7);
 
 renderer = new THREE.WebGLRenderer();
 renderer.shadowMap.enabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+window.addEventListener("resize", () => {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+
 controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.update();
 
+var mesh;
+
 loader = new GLTFLoader();
 loader.load(
-  "Unchangeable.glb",
+  "Final.glb",
   function (gltf) {
-    scene.add(gltf.scene);
+    mesh = gltf.scene;
+    scene.add(mesh);
+    console.log(
+      mesh.children[0].children[0].children[2].children[0].children[14]
+    );
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -45,6 +64,21 @@ loader.load(
     console.log("An error happened");
   }
 );
+
+const guiPosFolder = gui.addFolder("Living Room");
+// guiPosFolder
+//   .add(
+//     mesh.children[0].children[0].children[2].children[0].children[14].material,
+//     "roughness"
+//   )
+//   .name("Roughness")
+//   .min(0)
+//   .max(1)
+//   .step(0.1);
+
+const light = new THREE.DirectionalLight(0xffffff, 0.3);
+light.position.set(5, 16, 17);
+scene.add(light);
 
 const animate = function () {
   renderer.render(scene, camera);
