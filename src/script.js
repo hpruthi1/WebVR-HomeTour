@@ -23,7 +23,8 @@ camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.set(10, 0, 7);
+camera.position.set(3.8, 5.7, 14.5);
+camera.rotation.set(-32, 25, 15);
 
 renderer = new THREE.WebGLRenderer();
 renderer.shadowMap.enabled = true;
