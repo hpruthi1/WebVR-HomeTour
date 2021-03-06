@@ -48,7 +48,7 @@ controls.update();
 
 const light = new THREE.DirectionalLight(0xffffff, 0.3);
 light.position.set(5, 16, 17);
-scene.add(light);
+//scene.add(light);
 
 let ChangeableObj = {
   BR1_Bulb: "Meshes/Changeable/BR1_Bulb.glb",
@@ -64,16 +64,16 @@ let ChangeableObj = {
   BR2_Sofa: "Meshes/Changeable/BR2_Sofa.glb",
   BR2_TV: "Meshes/Changeable/BR2_TV.glb",
   LR_Bulb: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Clock: "Meshes/Changeable/LR_Bulb.glb",
-  LR_CoffeTable: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Couch1: "Meshes/Changeable/LR_Bulb.glb",
-  LR_DiningTable: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Foor: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Lamp: "Meshes/Changeable/LR_Bulb.glb",
-  LR_MidTable: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Rug: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Seti: "Meshes/Changeable/LR_Bulb.glb",
-  LR_Sofa2: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Clock: "Meshes/Changeable/LR_Clock.glb",
+  LR_CoffeTable: "Meshes/Changeable/LR_CoffeeTable.glb",
+  LR_Couch1: "Meshes/Changeable/LR_Couch1.glb",
+  LR_DiningTable: "Meshes/Changeable/LR_DiningTable.glb",
+  LR_Floor: "Meshes/Changeable/LR_Floor.glb",
+  LR_Lamp: "Meshes/Changeable/LR_Lamp.glb",
+  LR_MidTable: "Meshes/Changeable/LR_MidTable.glb",
+  LR_Rug: "Meshes/Changeable/LR_Rug.glb",
+  LR_Seti: "Meshes/Changeable/LR_Seti.glb",
+  LR_Sofa2: "Meshes/Changeable/LR_Sofa2.glb",
   Maindoor: "Meshes/Changeable/MainDoor.glb",
   Painting1: "Meshes/Changeable/Painting1.glb",
   Painting2: "Meshes/Changeable/Painting2.glb",
