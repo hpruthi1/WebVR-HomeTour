@@ -46,6 +46,60 @@ controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.update();
 
+const light = new THREE.DirectionalLight(0xffffff, 0.3);
+light.position.set(5, 16, 17);
+scene.add(light);
+
+let ChangeableObj = {
+  BR1_Bulb: "Meshes/Changeable/BR1_Bulb.glb",
+  BR1_Door: "Meshes/Changeable/BR1_Door.glb",
+  BR1_Floor: "Meshes/Changeable/BR1_Floor.glb",
+  BR1_Lamp: "Meshes/Changeable/BR1_Lamp.glb",
+  BR1_Rug: "Meshes/Changeable/BR1_Rug.glb",
+  BR1_Sofa: "Meshes/Changeable/BR1_Sofa.glb",
+  BR1_Table: "Meshes/Changeable/BR1_Table.glb",
+  BR2_BeanBag: "Meshes/Changeable/BR2_BeanBag.glb",
+  BR2_BedSheet: "Meshes/Changeable/BR2_BedSheet.glb",
+  BR2_Door: "Meshes/Changeable/BR2_Door.glb",
+  BR2_Sofa: "Meshes/Changeable/BR2_Sofa.glb",
+  BR2_TV: "Meshes/Changeable/BR2_TV.glb",
+  LR_Bulb: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Clock: "Meshes/Changeable/LR_Bulb.glb",
+  LR_CoffeTable: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Couch1: "Meshes/Changeable/LR_Bulb.glb",
+  LR_DiningTable: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Foor: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Lamp: "Meshes/Changeable/LR_Bulb.glb",
+  LR_MidTable: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Rug: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Seti: "Meshes/Changeable/LR_Bulb.glb",
+  LR_Sofa2: "Meshes/Changeable/LR_Bulb.glb",
+  Maindoor: "Meshes/Changeable/MainDoor.glb",
+  Painting1: "Meshes/Changeable/Painting1.glb",
+  Painting2: "Meshes/Changeable/Painting2.glb",
+  Kitchen_Led: "Meshes/Changeable/Kitchen_LED5.glb",
+  Kitchen_Floor: "Meshes/Changeable/KitchenFloor.glb",
+};
+
+const loader1 = new GLTFLoader();
+
+for (var i in ChangeableObj) {
+  var load_obj = ChangeableObj[i];
+  (function (index) {
+    load_obj = ChangeableObj[index];
+    loader1.load(
+      load_obj,
+      function (object) {
+        scene.add(object.scene);
+      },
+      undefined,
+      function (error) {
+        console.log("An error happened");
+      }
+    );
+  })(i);
+}
+
 var mesh;
 let isModelLoaded = false;
 let objectsToIntersect = [];
@@ -53,39 +107,39 @@ const guiPosFolder = gui.addFolder("Living Room");
 
 loader = new GLTFLoader();
 loader.load(
-  "Final.glb",
+  "Meshes/Unchangeable/InitialScene.glb",
   function (gltf) {
     mesh = gltf.scene;
     scene.add(mesh);
     console.log(mesh);
     isModelLoaded = true;
 
-    //Adding Living Room Floor to ObjectstoIntersect
-    if (
-      mesh.children[0].children[0].children[2].children[0].children[14].name ==
-      "mesh_0"
-    ) {
-      objectsToIntersect.push(
-        mesh.children[0].children[0].children[2].children[0].children[14]
-      );
-    }
-    console.log(objectsToIntersect);
+    // //Adding Living Room Floor to ObjectstoIntersect
+    // if (
+    //   mesh.children[0].children[0].children[2].children[0].children[14].name ==
+    //   "mesh_0"
+    // ) {
+    //   objectsToIntersect.push(
+    //     mesh.children[0].children[0].children[2].children[0].children[14]
+    //   );
+    // }
+    // console.log(objectsToIntersect);
 
-    //Adding Living Room floor to dat.gui
-    if (isModelLoaded) {
-      guiPosFolder
-        .add(
-          mesh.children[0].children[0].children[2].children[0].children[14]
-            .material,
-          "roughness"
-        )
-        .name("Floor Roughness")
-        .min(0)
-        .max(1)
-        .step(0.1);
+    // //Adding Living Room floor to dat.gui
+    // if (isModelLoaded) {
+    //   guiPosFolder
+    //     .add(
+    //       mesh.children[0].children[0].children[2].children[0].children[14]
+    //         .material,
+    //       "roughness"
+    //     )
+    //     .name("Floor Roughness")
+    //     .min(0)
+    //     .max(1)
+    //     .step(0.1);
 
-      guiPosFolder.open();
-    }
+    //   guiPosFolder.open();
+    // }
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -94,10 +148,6 @@ loader.load(
     console.log("An error happened");
   }
 );
-
-const light = new THREE.DirectionalLight(0xffffff, 0.3);
-light.position.set(5, 16, 17);
-scene.add(light);
 
 const animate = function () {
   renderer.render(scene, camera);
