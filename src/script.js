@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
 
-let scene, camera, renderer, controls, loader, raycaster, reticle, gui;
+let scene, camera, renderer, controls, loader, reticle, gui;
 
 const sizes = {
   width: window.innerWidth,
@@ -81,6 +81,8 @@ let ChangeableObj = {
   Kitchen_Floor: "Meshes/Changeable/KitchenFloor.glb",
 };
 
+let spawnedObj = [];
+
 const loader1 = new GLTFLoader();
 
 for (var i in ChangeableObj) {
@@ -90,7 +92,14 @@ for (var i in ChangeableObj) {
     loader1.load(
       load_obj,
       function (object) {
-        scene.add(object.scene);
+        let meshes = object.scene;
+        meshes.traverse((child) => {
+          if (child.isMesh) {
+            spawnedObj.push(child);
+          }
+        });
+        scene.add(meshes);
+        console.log(spawnedObj);
       },
       undefined,
       function (error) {
@@ -102,8 +111,6 @@ for (var i in ChangeableObj) {
 
 var mesh;
 let isModelLoaded = false;
-let objectsToIntersect = [];
-const guiPosFolder = gui.addFolder("Living Room");
 
 loader = new GLTFLoader();
 loader.load(
@@ -148,6 +155,22 @@ loader.load(
     console.log("An error happened");
   }
 );
+
+const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+let currentIntersectingObj = null;
+
+window.addEventListener("click", () => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  let objectsToIntersect = [spawnedObj];
+  raycaster.setFromCamera(mouse, camera);
+  let intersects = raycaster.intersectObjects(spawnedObj);
+  if (intersects[0]) {
+    console.log(intersects[0]);
+  }
+});
 
 const animate = function () {
   renderer.render(scene, camera);
