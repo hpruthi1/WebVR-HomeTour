@@ -131,6 +131,8 @@ loader.load(
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 let currentIntersectingObj = null;
+var folder1 = gui.addFolder("Visibility");
+var folder2 = gui.addFolder("Couch");
 
 window.addEventListener("click", () => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -140,7 +142,7 @@ window.addEventListener("click", () => {
   raycaster.setFromCamera(mouse, camera);
   let intersects = raycaster.intersectObjects(spawnedObj);
   if (intersects[0]) {
-    //console.log(intersects[0].object.parent);
+    //PropertyChange
   }
 
   if (intersects.length) {
@@ -149,6 +151,23 @@ window.addEventListener("click", () => {
   } else {
     currentIntersectingObj = null;
     console.log(currentIntersectingObj);
+  }
+
+  if (currentIntersectingObj) {
+    switch (currentIntersectingObj.object) {
+      case spawnedObj.LR_Floor:
+        folder1.add(currentIntersectingObj, "visible").name("Visible");
+        folder1.open();
+        break;
+      case spawnedObj.LR_Couch1:
+        folder1.addFolder(folder2);
+        folder1.open();
+        break;
+      case spawnedObj.LR_Sofa2:
+        folder1.addFolder("Sofa");
+        folder1.open();
+        break;
+    }
   }
 });
 
