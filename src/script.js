@@ -60,7 +60,6 @@ let ChangeableObj = {
   BR1_Table: "Meshes/Changeable/BR1_Table.glb",
   BR2_BeanBag: "Meshes/Changeable/BR2_BeanBag.glb",
   BR2_BedSheet: "Meshes/Changeable/BR2_BedSheet.glb",
-  BR2_Door: "Meshes/Changeable/BR2_Door.glb",
   BR2_Sofa: "Meshes/Changeable/BR2_Sofa.glb",
   BR2_TV: "Meshes/Changeable/BR2_TV.glb",
   LR_Bulb: "Meshes/Changeable/LR_Bulb.glb",
@@ -75,13 +74,13 @@ let ChangeableObj = {
   LR_Seti: "Meshes/Changeable/LR_Seti.glb",
   LR_Sofa2: "Meshes/Changeable/LR_Sofa2.glb",
   Maindoor: "Meshes/Changeable/MainDoor.glb",
-  Painting1: "Meshes/Changeable/Painting1.glb",
   Painting2: "Meshes/Changeable/Painting2.glb",
   Kitchen_Led: "Meshes/Changeable/Kitchen_LED5.glb",
   Kitchen_Floor: "Meshes/Changeable/KitchenFloor.glb",
 };
 
 let spawnedObj = [];
+let isChangeableModelLoaded = false;
 
 const loader1 = new GLTFLoader();
 
@@ -99,7 +98,7 @@ for (var i in ChangeableObj) {
           }
         });
         scene.add(meshes);
-        console.log(spawnedObj);
+        isChangeableModelLoaded = true;
       },
       undefined,
       function (error) {
@@ -110,43 +109,16 @@ for (var i in ChangeableObj) {
 }
 
 var mesh;
-let isModelLoaded = false;
+let isUnchangeableModelLoaded = false;
 
 loader = new GLTFLoader();
 loader.load(
-  "Meshes/Unchangeable/InitialScene.glb",
+  "Meshes/Unchangeable/scene.glb",
   function (gltf) {
     mesh = gltf.scene;
     scene.add(mesh);
     console.log(mesh);
-    isModelLoaded = true;
-
-    // //Adding Living Room Floor to ObjectstoIntersect
-    // if (
-    //   mesh.children[0].children[0].children[2].children[0].children[14].name ==
-    //   "mesh_0"
-    // ) {
-    //   objectsToIntersect.push(
-    //     mesh.children[0].children[0].children[2].children[0].children[14]
-    //   );
-    // }
-    // console.log(objectsToIntersect);
-
-    // //Adding Living Room floor to dat.gui
-    // if (isModelLoaded) {
-    //   guiPosFolder
-    //     .add(
-    //       mesh.children[0].children[0].children[2].children[0].children[14]
-    //         .material,
-    //       "roughness"
-    //     )
-    //     .name("Floor Roughness")
-    //     .min(0)
-    //     .max(1)
-    //     .step(0.1);
-
-    //   guiPosFolder.open();
-    // }
+    isUnchangeableModelLoaded = true;
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -168,7 +140,7 @@ window.addEventListener("click", () => {
   raycaster.setFromCamera(mouse, camera);
   let intersects = raycaster.intersectObjects(spawnedObj);
   if (intersects[0]) {
-    console.log(intersects[0]);
+    console.log(intersects[0].object.parent);
   }
 });
 
