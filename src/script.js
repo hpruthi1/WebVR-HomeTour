@@ -140,7 +140,15 @@ window.addEventListener("click", () => {
   raycaster.setFromCamera(mouse, camera);
   let intersects = raycaster.intersectObjects(spawnedObj);
   if (intersects[0]) {
-    console.log(intersects[0].object.parent);
+    //console.log(intersects[0].object.parent);
+  }
+
+  if (intersects.length) {
+    currentIntersectingObj = intersects[0].object.parent;
+    console.log(currentIntersectingObj);
+  } else {
+    currentIntersectingObj = null;
+    console.log(currentIntersectingObj);
   }
 });
 
