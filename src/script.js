@@ -26,7 +26,7 @@ camera = new THREE.PerspectiveCamera(
 camera.position.set(3.8, 5.7, 14.5);
 camera.rotation.set(-32, 25, 15);
 
-renderer = new THREE.WebGLRenderer();
+renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -64,7 +64,7 @@ let ChangeableObj = {
   BR2_TV: "Meshes/Changeable/BR2_TV.glb",
   LR_Bulb: "Meshes/Changeable/LR_Bulb.glb",
   LR_Clock: "Meshes/Changeable/LR_Clock.glb",
-  LR_CoffeTable: "Meshes/Changeable/LR_CoffeeTable.glb",
+  LR_CoffeeTable: "Meshes/Changeable/LR_CoffeeTable.glb",
   LR_Couch1: "Meshes/Changeable/LR_Couch1.glb",
   LR_DiningTable: "Meshes/Changeable/LR_DiningTable.glb",
   LR_Floor: "Meshes/Changeable/LR_Floor.glb",
@@ -76,7 +76,7 @@ let ChangeableObj = {
   Maindoor: "Meshes/Changeable/MainDoor.glb",
   Painting2: "Meshes/Changeable/Painting2.glb",
   Kitchen_Led: "Meshes/Changeable/Kitchen_LED5.glb",
-  Kitchen_Floor: "Meshes/Changeable/KitchenFloor.glb",
+  KitchenFloor: "Meshes/Changeable/KitchenFloor.glb",
 };
 
 let spawnedObj = [];
@@ -130,19 +130,78 @@ loader.load(
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
+
 let currentIntersectingObj = null;
 var folder1 = gui.addFolder("Visibility");
 
 let selectedObjProp = {
   LR_Floor: (object) => {
-    console.log("Floor");
-    folder1.add(object, "visible").name("LR_Floor");
+    folder1.add(object, "visible").name(object.name);
     folder1.open();
   },
 
   LR_Sofa2: (object) => {
-    console.log("Sofa");
-    folder1.add(object, "visible").name("LR_Sofa2");
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  LR_DiningTable: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  LR_Lamp: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  LR_CoffeeTable: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  LR_Seti: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  LR_Bulb: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  KitchenFloor: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  Kitchen_Led: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR1_Door: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR1_Lamp: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR1_Table: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR1_Rug: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR1_Sofa: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR1_Floor: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR2_BeanBag: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  BR2_Sofa: (object) => {
+    folder1.add(object, "visible").name(object.name);
   },
 };
 
@@ -156,6 +215,7 @@ window.addEventListener("click", () => {
 
   if (intersects.length) {
     currentIntersectingObj = intersects[0].object.parent;
+    console.log(currentIntersectingObj);
   } else {
     currentIntersectingObj = null;
     console.log(currentIntersectingObj);
