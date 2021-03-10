@@ -3,10 +3,25 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
+import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
 
-let scene, camera, renderer, controls, loader, reticle, gui;
+let scene,
+  camera,
+  renderer,
+  controls,
+  loader,
+  reticle,
+  gui,
+  controller1,
+  controller2,
+  controllerGrip1,
+  controllerGrip2;
+let container;
+
+const tempMatrix = new THREE.Matrix4();
 
 const sizes = {
   width: window.innerWidth,
@@ -14,6 +29,18 @@ const sizes = {
 };
 
 scene = new THREE.Scene();
+scene.background = new THREE.Color(0x808080);
+
+const floorGeometry = new THREE.PlaneGeometry(4, 4);
+const floorMaterial = new THREE.MeshStandardMaterial({
+  color: 0xeeeeee,
+  roughness: 1.0,
+  metalness: 0.0,
+});
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
 gui = new dat.GUI();
 
 camera = new THREE.PerspectiveCamera(
@@ -28,8 +55,34 @@ camera.rotation.set(-32, 25, 15);
 
 renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
+renderer.xr.enabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+document.body.appendChild(VRButton.createButton(renderer));
+
+controller1 = renderer.xr.getController(0);
+// controller1.addEventListener("selectstart", onSelectStart);
+// controller1.addEventListener("selectend", onSelectEnd);
+scene.add(controller1);
+
+controller2 = renderer.xr.getController(1);
+// controller2.addEventListener("selectstart", onSelectStart);
+// controller2.addEventListener("selectend", onSelectEnd);
+scene.add(controller2);
+
+const controllerModelFactory = new XRControllerModelFactory();
+
+controllerGrip1 = renderer.xr.getControllerGrip(0);
+controllerGrip1.add(
+  controllerModelFactory.createControllerModel(controllerGrip1)
+);
+scene.add(controllerGrip1);
+
+controllerGrip2 = renderer.xr.getControllerGrip(1);
+controllerGrip2.add(
+  controllerModelFactory.createControllerModel(controllerGrip2)
+);
+scene.add(controllerGrip2);
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
@@ -47,8 +100,14 @@ controls.target.set(0, 0, 0);
 controls.update();
 
 const light = new THREE.DirectionalLight(0xffffff, 0.3);
-light.position.set(5, 16, 17);
-//scene.add(light);
+light.position.set(0, 6, 0);
+light.castShadow = true;
+light.shadow.camera.top = 2;
+light.shadow.camera.bottom = -2;
+light.shadow.camera.right = 2;
+light.shadow.camera.left = -2;
+light.shadow.mapSize.set(4096, 4096);
+scene.add(light);
 
 let ChangeableObj = {
   BR1_Bulb: "Meshes/Changeable/BR1_Bulb.glb",
@@ -231,8 +290,10 @@ window.addEventListener("click", () => {
 });
 
 const animate = function () {
-  renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+  renderer.setAnimationLoop(render);
 };
 
+function render() {
+  renderer.render(scene, camera);
+}
 animate();
