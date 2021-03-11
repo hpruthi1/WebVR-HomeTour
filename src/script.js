@@ -3,7 +3,7 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
+import { VRButton } from "../src/VRButton.js";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
@@ -20,6 +20,7 @@ let scene,
   controllerGrip1,
   controllerGrip2;
 let container;
+let teleportation = false;
 
 const tempMatrix = new THREE.Matrix4();
 
@@ -32,8 +33,10 @@ scene = new THREE.Scene();
 scene.background = new THREE.Color(0x808080);
 gui = new dat.GUI();
 
+//camera
+
 camera = new THREE.PerspectiveCamera(
-  45,
+  50,
   window.innerWidth / window.innerHeight,
   0.01,
   1000
@@ -42,6 +45,8 @@ camera = new THREE.PerspectiveCamera(
 camera.position.set(3.8, 5.7, 14.5);
 camera.rotation.set(-32, 25, 15);
 
+//renderer
+
 renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
 renderer.xr.enabled = true;
@@ -49,6 +54,8 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(VRButton.createButton(renderer));
+
+//controllers
 
 controller1 = renderer.xr.getController(0);
 // controller1.addEventListener("selectstart", onSelectStart);
@@ -73,6 +80,8 @@ controllerGrip2.add(
   controllerModelFactory.createControllerModel(controllerGrip2)
 );
 scene.add(controllerGrip2);
+
+//
 
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, 0, 0),
@@ -265,7 +274,6 @@ window.addEventListener("click", () => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  let objectsToIntersect = [spawnedObj];
   raycaster.setFromCamera(mouse, camera);
   let intersects = raycaster.intersectObjects(spawnedObj);
 
