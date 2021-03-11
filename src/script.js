@@ -45,6 +45,7 @@ camera.rotation.set(-32, 25, 15);
 renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
 renderer.xr.enabled = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(VRButton.createButton(renderer));
@@ -122,7 +123,6 @@ let ChangeableObj = {
   BR2_BedSheet: "Meshes/Changeable/BR2_BedSheet.glb",
   BR2_Sofa: "Meshes/Changeable/BR2_Sofa.glb",
   BR2_TV: "Meshes/Changeable/BR2_TV.glb",
-  LR_Bulb: "Meshes/Changeable/LR_Bulb.glb",
   LR_Clock: "Meshes/Changeable/LR_Clock.glb",
   LR_CoffeeTable: "Meshes/Changeable/LR_CoffeeTable.glb",
   LR_Couch1: "Meshes/Changeable/LR_Couch1.glb",
@@ -217,10 +217,6 @@ let selectedObjProp = {
   },
 
   LR_Seti: (object) => {
-    folder1.add(object, "visible").name(object.name);
-  },
-
-  LR_Bulb: (object) => {
     folder1.add(object, "visible").name(object.name);
   },
 
