@@ -23,6 +23,7 @@ let container;
 let teleportation = false;
 
 const tempMatrix = new THREE.Matrix4();
+const intersected = [];
 
 const sizes = {
   width: window.innerWidth,
@@ -58,13 +59,13 @@ document.body.appendChild(VRButton.createButton(renderer));
 //controllers
 
 controller1 = renderer.xr.getController(0);
-// controller1.addEventListener("selectstart", onSelectStart);
-// controller1.addEventListener("selectend", onSelectEnd);
+controller1.addEventListener("selectstart", onSelectStart);
+controller1.addEventListener("selectend", onSelectEnd);
 scene.add(controller1);
 
 controller2 = renderer.xr.getController(1);
-// controller2.addEventListener("selectstart", onSelectStart);
-// controller2.addEventListener("selectend", onSelectEnd);
+controller2.addEventListener("selectstart", onSelectStart);
+controller2.addEventListener("selectend", onSelectEnd);
 scene.add(controller2);
 
 const controllerModelFactory = new XRControllerModelFactory();
@@ -80,8 +81,6 @@ controllerGrip2.add(
   controllerModelFactory.createControllerModel(controllerGrip2)
 );
 scene.add(controllerGrip2);
-
-//
 
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, 0, 0),
@@ -274,6 +273,7 @@ window.addEventListener("click", () => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+  //MouseRaycasting
   raycaster.setFromCamera(mouse, camera);
   let intersects = raycaster.intersectObjects(spawnedObj);
 
@@ -294,11 +294,80 @@ window.addEventListener("click", () => {
   }
 });
 
+//VRControllerEvents
+
+function onSelectStart(event) {
+  const controller = event.target;
+
+  const intersections = getIntersections(controller);
+
+  if (intersections.length > 0) {
+    const intersection = intersections[0];
+
+    const object = intersection.object.parent;
+    // object.material.emissive.b = 1;
+    // controller.attach( object );
+    console.log(object);
+
+    controller.userData.selected = object;
+  }
+}
+
+function onSelectEnd(event) {
+  const controller = event.target;
+
+  if (controller.userData.selected !== undefined) {
+    const object = controller.userData.selected;
+    // object.material.emissive.b = 0;
+    // group.attach( object );
+
+    controller.userData.selected = undefined;
+  }
+}
+
+//ControllerRaycasting
+
+function getIntersections(controller) {
+  tempMatrix.identity().extractRotation(controller.matrixWorld);
+
+  raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+  raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+  return raycaster.intersectObjects(spawnedObj);
+}
+
+function intersectObjects(controller) {
+  if (controller.userData.selected !== undefined) return;
+
+  const line = controller.getObjectByName("line");
+  const intersections = getIntersections(controller);
+
+  if (intersections.length > 0) {
+    const intersection = intersections[0];
+
+    const object = intersection.object.parent;
+    intersected.push(object);
+
+    line.scale.z = intersection.distance;
+  } else {
+    line.scale.z = 5;
+  }
+}
+
+function cleanIntersected() {
+  while (intersected.length) {
+    const object = intersected.pop();
+  }
+}
+
 const animate = function () {
   renderer.setAnimationLoop(render);
 };
 
 function render() {
+  cleanIntersected();
+  intersectObjects(controller1);
+  intersectObjects(controller2);
   renderer.render(scene, camera);
 }
 animate();
