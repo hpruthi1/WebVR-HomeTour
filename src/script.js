@@ -30,17 +30,6 @@ const sizes = {
 
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x808080);
-
-const floorGeometry = new THREE.PlaneGeometry(4, 4);
-const floorMaterial = new THREE.MeshStandardMaterial({
-  color: 0xeeeeee,
-  roughness: 1.0,
-  metalness: 0.0,
-});
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
 gui = new dat.GUI();
 
 camera = new THREE.PerspectiveCamera(
@@ -83,6 +72,18 @@ controllerGrip2.add(
   controllerModelFactory.createControllerModel(controllerGrip2)
 );
 scene.add(controllerGrip2);
+
+const geometry = new THREE.BufferGeometry().setFromPoints([
+  new THREE.Vector3(0, 0, 0),
+  new THREE.Vector3(0, 0, -1),
+]);
+
+const line = new THREE.Line(geometry);
+line.name = "line";
+line.scale.z = 5;
+
+controller1.add(line.clone());
+controller2.add(line.clone());
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
