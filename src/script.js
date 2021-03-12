@@ -7,6 +7,7 @@ import { VRButton } from "../src/VRButton.js";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
+import ThreeMeshUI from "three-mesh-ui";
 
 let scene,
   camera,
@@ -34,6 +35,31 @@ const sizes = {
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x808080);
 gui = new dat.GUI();
+
+const uiContainer = new ThreeMeshUI.Block({
+  height: 10,
+  width: 5,
+});
+
+uiContainer.position.set(0, 1, -1.8);
+uiContainer.rotation.x = -0.55;
+scene.add(uiContainer);
+console.log(uiContainer);
+
+const imageBlock = new ThreeMeshUI.Block({
+  height: 1,
+  width: 1,
+  offset: 0.1,
+});
+
+const textBlock = new ThreeMeshUI.Block({
+  height: 0.4,
+  width: 0.8,
+  margin: 0.05,
+  offset: 0.1,
+});
+
+uiContainer.add(imageBlock, textBlock);
 
 //camera
 
@@ -372,6 +398,34 @@ function onSelectStart(event) {
     // object.material.emissive.b = 1;
     // controller.attach( object );
     console.log(object);
+    // const container = new ThreeMeshUI.Block({
+    //   height: 1.5,
+    //   width: 1,
+    // });
+
+    // container.position.set(
+    //   object.position.x,
+    //   object.position.y + 1,
+    //   object.position.z
+    // );
+    // container.rotation.x = -0.55;
+    // scene.add(container);
+
+    // const imageBlock = new ThreeMeshUI.Block({
+    //   height: 1,
+    //   width: 1,
+    //   offset: 0.1,
+    // });
+
+    // const textBlock = new ThreeMeshUI.Block({
+    //   height: 0.4,
+    //   width: 0.8,
+    //   margin: 0.05,
+    //   offset: 0.1,
+    // });
+
+    // container.add(imageBlock, textBlock);
+    // console.log(container.position);
 
     controller.userData.selected = object;
   }
@@ -425,6 +479,7 @@ function cleanIntersected() {
 }
 
 const animate = function () {
+  ThreeMeshUI.update();
   renderer.setAnimationLoop(render);
 };
 
