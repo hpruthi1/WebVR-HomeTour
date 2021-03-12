@@ -43,8 +43,12 @@ camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.set(3.8, 5.7, 14.5);
-camera.rotation.set(-32, 25, 15);
+let cameraHolder = new THREE.Object3D();
+cameraHolder.add(camera);
+console.log(cameraHolder);
+cameraHolder.position.set(2.47, 4.67, 12.47);
+cameraHolder.rotation.set(0.0, 0.28, 0.0);
+scene.add(cameraHolder);
 
 //renderer
 
@@ -54,19 +58,20 @@ renderer.xr.enabled = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-document.body.appendChild(VRButton.createButton(renderer));
+let VrButton;
+document.body.appendChild((VrButton = VRButton.createButton(renderer)));
 
 //controllers
 
 controller1 = renderer.xr.getController(0);
 controller1.addEventListener("selectstart", onSelectStart);
 controller1.addEventListener("selectend", onSelectEnd);
-scene.add(controller1);
+cameraHolder.add(controller1);
 
 controller2 = renderer.xr.getController(1);
 controller2.addEventListener("selectstart", onSelectStart);
 controller2.addEventListener("selectend", onSelectEnd);
-scene.add(controller2);
+cameraHolder.add(controller2);
 
 const controllerModelFactory = new XRControllerModelFactory();
 
@@ -74,13 +79,13 @@ controllerGrip1 = renderer.xr.getControllerGrip(0);
 controllerGrip1.add(
   controllerModelFactory.createControllerModel(controllerGrip1)
 );
-scene.add(controllerGrip1);
+cameraHolder.add(controllerGrip1);
 
 controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(
   controllerModelFactory.createControllerModel(controllerGrip2)
 );
-scene.add(controllerGrip2);
+cameraHolder.add(controllerGrip2);
 
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, 0, 0),
@@ -93,6 +98,11 @@ line.scale.z = 5;
 
 controller1.add(line.clone());
 controller2.add(line.clone());
+
+VrButton.addEventListener("VREntered", () => {
+  cameraHolder.position.set(1.31, -1.57, -0.55);
+  cameraHolder.rotation.set(0.0, 0.28, 0.0);
+});
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
@@ -282,7 +292,6 @@ window.addEventListener("click", () => {
     console.log(currentIntersectingObj);
   } else {
     currentIntersectingObj = null;
-    console.log(currentIntersectingObj);
   }
 
   if (
