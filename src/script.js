@@ -24,6 +24,7 @@ let teleportation = false;
 
 const tempMatrix = new THREE.Matrix4();
 const intersected = [];
+let teleportFloors = [];
 
 const sizes = {
   width: window.innerWidth,
@@ -43,12 +44,13 @@ camera = new THREE.PerspectiveCamera(
   1000
 );
 
-let cameraHolder = new THREE.Object3D();
-cameraHolder.add(camera);
-console.log(cameraHolder);
-cameraHolder.position.set(2.47, 4.67, 12.47);
-cameraHolder.rotation.set(0.0, 0.28, 0.0);
-scene.add(cameraHolder);
+camera.position.set(2.47, 4.67, 12.47);
+camera.rotation.set(0.0, 0.28, 0.0);
+
+// let cameraHolder = new THREE.Object3D();
+// cameraHolder.add(camera);
+// console.log(cameraHolder);
+// scene.add(cameraHolder);
 
 //renderer
 
@@ -66,12 +68,12 @@ document.body.appendChild((VrButton = VRButton.createButton(renderer)));
 controller1 = renderer.xr.getController(0);
 controller1.addEventListener("selectstart", onSelectStart);
 controller1.addEventListener("selectend", onSelectEnd);
-cameraHolder.add(controller1);
+scene.add(controller1);
 
 controller2 = renderer.xr.getController(1);
 controller2.addEventListener("selectstart", onSelectStart);
 controller2.addEventListener("selectend", onSelectEnd);
-cameraHolder.add(controller2);
+scene.add(controller2);
 
 const controllerModelFactory = new XRControllerModelFactory();
 
@@ -79,13 +81,13 @@ controllerGrip1 = renderer.xr.getControllerGrip(0);
 controllerGrip1.add(
   controllerModelFactory.createControllerModel(controllerGrip1)
 );
-cameraHolder.add(controllerGrip1);
+scene.add(controllerGrip1);
 
 controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(
   controllerModelFactory.createControllerModel(controllerGrip2)
 );
-cameraHolder.add(controllerGrip2);
+scene.add(controllerGrip2);
 
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, 0, 0),
@@ -99,10 +101,10 @@ line.scale.z = 5;
 controller1.add(line.clone());
 controller2.add(line.clone());
 
-VrButton.addEventListener("VREntered", () => {
-  cameraHolder.position.set(1.31, -1.57, -0.55);
-  cameraHolder.rotation.set(0.0, 0.28, 0.0);
-});
+// VrButton.addEventListener("VREntered", () => {
+//   cameraHolder.position.set(1.31, -1.57, -0.55);
+//   cameraHolder.rotation.set(0.0, 0.28, 0.0);
+// });
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
@@ -127,7 +129,7 @@ light.shadow.camera.bottom = -2;
 light.shadow.camera.right = 2;
 light.shadow.camera.left = -2;
 light.shadow.mapSize.set(4096, 4096);
-scene.add(light);
+//scene.add(light);
 
 let ChangeableObj = {
   BR1_Bulb: "Meshes/Changeable/BR1_Bulb.glb",
@@ -208,17 +210,31 @@ loader.load(
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
+reticle = new THREE.Mesh(
+  new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ color: "blue" })
+);
+reticle.visible = false;
+scene.add(reticle);
 
 let currentIntersectingObj = null;
 var folder1 = gui.addFolder("Visibility");
+folder1.open();
 
 let selectedObjProp = {
   LR_Floor: (object) => {
     folder1.add(object, "visible").name(object.name);
-    folder1.open();
+    // if (object.visible === false) {
+    //   scene.remove(object.parent);
+    //   console.log("Removed");
+    // }
   },
 
   LR_Sofa2: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
+  LR_Couch1: (object) => {
     folder1.add(object, "visible").name(object.name);
   },
 
@@ -270,6 +286,10 @@ let selectedObjProp = {
     folder1.add(object, "visible").name(object.name);
   },
 
+  BR1_Bulb: (object) => {
+    folder1.add(object, "visible").name(object.name);
+  },
+
   BR2_BeanBag: (object) => {
     folder1.add(object, "visible").name(object.name);
   },
@@ -283,23 +303,58 @@ window.addEventListener("click", () => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  //MouseRaycasting
-  raycaster.setFromCamera(mouse, camera);
-  let intersects = raycaster.intersectObjects(spawnedObj);
+  if (reticle.visible) {
+    let currentLocation = camera.position;
+    let targetLocation = new THREE.Vector3(
+      reticle.position.x,
+      camera.position.y,
+      reticle.position.z
+    );
 
-  if (intersects.length) {
-    currentIntersectingObj = intersects[0].object.parent;
-    console.log(currentIntersectingObj);
-  } else {
-    currentIntersectingObj = null;
+    gsap.to(camera.position, 2, {
+      x: targetLocation.x,
+      y: currentLocation.y,
+      z: targetLocation.z,
+      onUpdate: () => {
+        // camera.updateProjectionMatrix();
+      },
+    });
+
+    controls.target.set(targetLocation.x, currentLocation.y, targetLocation.z);
+
+    controls.update();
   }
 
-  if (
-    currentIntersectingObj &&
-    currentIntersectingObj.name in selectedObjProp
-  ) {
-    console.log(currentIntersectingObj);
-    selectedObjProp[currentIntersectingObj.name](currentIntersectingObj);
+  //MouseRaycasting
+  raycaster.setFromCamera(mouse, camera);
+
+  if (teleportation === false) {
+    let intersects = raycaster.intersectObjects(spawnedObj);
+
+    if (intersects.length) {
+      currentIntersectingObj = intersects[0].object.parent;
+      console.log(currentIntersectingObj);
+    } else {
+      currentIntersectingObj = null;
+    }
+
+    if (
+      currentIntersectingObj &&
+      currentIntersectingObj.name in selectedObjProp
+    ) {
+      //console.log(currentIntersectingObj);
+      selectedObjProp[currentIntersectingObj.name](currentIntersectingObj);
+    }
+  } else {
+    const teleportIntersects = raycaster.intersectObjects(spawnedObj);
+
+    if (teleportIntersects[0]) {
+      reticle.visible = true;
+      let location = teleportIntersects[0].point;
+      reticle.position.set(location.x, location.y + 0.01, location.z);
+    } else {
+      reticle.visible = false;
+    }
   }
 });
 
