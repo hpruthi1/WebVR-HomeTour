@@ -360,6 +360,15 @@ window.addEventListener("click", () => {
     if (intersects.length) {
       currentIntersectingObj = intersects[0].object.parent;
       console.log(currentIntersectingObj);
+
+      // camera.lookAt(
+      //   intersects[0].object.position.x,
+      //   intersects[0].object.position.y + 1,
+      //   intersects[0].object.position.z - 0.1
+      // );
+      // camera.updateProjectionMatrix();
+
+      // console.log(camera.position);
     } else {
       currentIntersectingObj = null;
     }
@@ -395,8 +404,7 @@ function onSelectStart(event) {
     const intersection = intersections[0];
 
     const object = intersection.object.parent;
-    // object.material.emissive.b = 1;
-    // controller.attach( object );
+    controller.attach(object);
     console.log(object);
     // const container = new ThreeMeshUI.Block({
     //   height: 1.5,
@@ -428,6 +436,7 @@ function onSelectStart(event) {
     // console.log(container.position);
 
     controller.userData.selected = object;
+    console.log(controller.userData.selected);
   }
 }
 
@@ -436,10 +445,10 @@ function onSelectEnd(event) {
 
   if (controller.userData.selected !== undefined) {
     const object = controller.userData.selected;
-    // object.material.emissive.b = 0;
-    // group.attach( object );
+    scene.attach(object);
 
     controller.userData.selected = undefined;
+    console.log(controller.userData.selected);
   }
 }
 
