@@ -36,30 +36,29 @@ scene = new THREE.Scene();
 scene.background = new THREE.Color(0x808080);
 gui = new dat.GUI();
 
-const uiContainer = new ThreeMeshUI.Block({
-  height: 10,
-  width: 5,
-});
+function makePanel() {
+  const uiContainer = new ThreeMeshUI.Block({
+    height: 2,
+    width: 2.2,
+  });
 
-uiContainer.position.set(0, 1, -1.8);
-uiContainer.rotation.x = -0.55;
-scene.add(uiContainer);
-console.log(uiContainer);
+  uiContainer.position.set(4, 1, 4.1);
+  uiContainer.rotation.x = -0.55;
+  scene.add(uiContainer);
 
-const imageBlock = new ThreeMeshUI.Block({
-  height: 1,
-  width: 1,
-  offset: 0.1,
-});
+  const textBlock = new ThreeMeshUI.Block({
+    height: 1,
+    width: 2.2,
+    margin: 0.025,
+    padding: 0.02,
+    fontSize: 0.04,
+    justifyContent: "center",
+  });
 
-const textBlock = new ThreeMeshUI.Block({
-  height: 0.4,
-  width: 0.8,
-  margin: 0.05,
-  offset: 0.1,
-});
+  uiContainer.add(textBlock);
+}
 
-uiContainer.add(imageBlock, textBlock);
+makePanel();
 
 //camera
 
