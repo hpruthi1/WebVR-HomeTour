@@ -7,7 +7,6 @@ import { VRButton } from "../src/VRButton.js";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
-import ThreeMeshUI from "three-mesh-ui";
 
 let scene,
   camera,
@@ -35,30 +34,6 @@ const sizes = {
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x808080);
 gui = new dat.GUI();
-
-function makePanel() {
-  const uiContainer = new ThreeMeshUI.Block({
-    height: 2,
-    width: 2.2,
-  });
-
-  uiContainer.position.set(4, 1, 4.1);
-  uiContainer.rotation.x = -0.55;
-  scene.add(uiContainer);
-
-  const textBlock = new ThreeMeshUI.Block({
-    height: 1,
-    width: 2.2,
-    margin: 0.025,
-    padding: 0.02,
-    fontSize: 0.04,
-    justifyContent: "center",
-  });
-
-  uiContainer.add(textBlock);
-}
-
-makePanel();
 
 //camera
 
@@ -253,6 +228,12 @@ let selectedObjProp = {
     //   scene.remove(object.parent);
     //   console.log("Removed");
     // }
+
+    folder1
+      .add(object.children[0].material, "metalness")
+      .min(0)
+      .max(1)
+      .step(0.001);
   },
 
   LR_Sofa2: (object) => {
@@ -487,7 +468,6 @@ function cleanIntersected() {
 }
 
 const animate = function () {
-  ThreeMeshUI.update();
   renderer.setAnimationLoop(render);
 };
 
