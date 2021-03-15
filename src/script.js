@@ -24,7 +24,9 @@ let teleportation = false;
 
 const tempMatrix = new THREE.Matrix4();
 const intersected = [];
+var floorMesh;
 let teleportFloors = [];
+let floorMeshSpawned = false;
 
 const sizes = {
   width: window.innerWidth,
@@ -174,7 +176,18 @@ for (var i in ChangeableObj) {
         let meshes = object.scene;
         meshes.traverse((child) => {
           if (child.isMesh) {
-            spawnedObj.push(child);
+            if (child.name == "LR_FloorMesh") {
+              console.log(child.name);
+              if (!floorMeshSpawned) {
+                floorMeshSpawned = true;
+                spawnedObj.push(child);
+                floorMesh = findObjectByKey(spawnedObj, "name", "LR_FloorMesh");
+                teleportFloors.push(floorMesh);
+                console.log(teleportFloors);
+              }
+            } else {
+              spawnedObj.push(child);
+            }
           }
         });
         scene.add(meshes);
@@ -188,8 +201,16 @@ for (var i in ChangeableObj) {
   })(i);
 }
 
+function findObjectByKey(array, name, value) {
+  for (var i = 0; i < array.length; i++) {
+    if (array[i][name] === value) {
+      return array[i];
+    }
+  }
+  return null;
+}
+
 var mesh;
-let isUnchangeableModelLoaded = false;
 
 loader = new GLTFLoader();
 loader.load(
@@ -197,8 +218,6 @@ loader.load(
   function (gltf) {
     mesh = gltf.scene;
     scene.add(mesh);
-    console.log(mesh);
-    isUnchangeableModelLoaded = true;
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -322,7 +341,7 @@ window.addEventListener("click", () => {
       y: currentLocation.y,
       z: targetLocation.z,
       onUpdate: () => {
-        // camera.updateProjectionMatrix();
+        camera.updateProjectionMatrix();
       },
     });
 
@@ -361,7 +380,7 @@ window.addEventListener("click", () => {
       selectedObjProp[currentIntersectingObj.name](currentIntersectingObj);
     }
   } else {
-    const teleportIntersects = raycaster.intersectObjects(spawnedObj);
+    const teleportIntersects = raycaster.intersectObjects(teleportFloors);
 
     if (teleportIntersects[0]) {
       reticle.visible = true;
@@ -386,34 +405,6 @@ function onSelectStart(event) {
     const object = intersection.object.parent;
     controller.attach(object);
     console.log(object);
-    // const container = new ThreeMeshUI.Block({
-    //   height: 1.5,
-    //   width: 1,
-    // });
-
-    // container.position.set(
-    //   object.position.x,
-    //   object.position.y + 1,
-    //   object.position.z
-    // );
-    // container.rotation.x = -0.55;
-    // scene.add(container);
-
-    // const imageBlock = new ThreeMeshUI.Block({
-    //   height: 1,
-    //   width: 1,
-    //   offset: 0.1,
-    // });
-
-    // const textBlock = new ThreeMeshUI.Block({
-    //   height: 0.4,
-    //   width: 0.8,
-    //   margin: 0.05,
-    //   offset: 0.1,
-    // });
-
-    // container.add(imageBlock, textBlock);
-    // console.log(container.position);
 
     controller.userData.selected = object;
     console.log(controller.userData.selected);
