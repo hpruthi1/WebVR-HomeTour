@@ -30,6 +30,10 @@ var kitchenFloor;
 let teleportFloors = [];
 let floorMeshSpawned = false;
 let kitchenFloorMeshSpawned = false;
+let couchSpawned = false;
+let sofaSpawned = false;
+let setiSpawned = false;
+let doorSpawned = false;
 
 const sizes = {
   width: window.innerWidth,
@@ -206,41 +210,67 @@ for (var i in ChangeableObj) {
             }
 
             if (child.name == "mesh_290") {
-              let bedroom1Door;
-              bedroom1Door = child.parent.parent;
-              var bedroom2Door;
-              bedroom2Door = bedroom1Door.clone();
-              bedroom2Door.name = "BR2_Door";
-              bedroom2Door.position.set(5.918, 0.308, -6);
-              scene.add(bedroom2Door);
+              if (!doorSpawned) {
+                doorSpawned = true;
+                let bedroom1Door;
+                bedroom1Door = child.parent.parent;
+                var bedroom2Door;
+                bedroom2Door = bedroom1Door.clone();
+                bedroom2Door.name = "BR2_Door";
+                bedroom2Door.position.set(5.918, 0.308, -6);
+                scene.add(bedroom2Door);
+              }
             }
 
             if (child.name == "Base") {
-              let Seti1;
-              Seti1 = child.parent;
-              var Seti2;
-              Seti2 = Seti1.clone();
-              Seti2.name = "LR_Seti2";
-              Seti2.position.set(13.893, 0, 10.44);
-              scene.add(Seti2);
+              if (!setiSpawned) {
+                setiSpawned = true;
+                let Seti1;
+                Seti1 = child.parent;
+                var Seti2;
+                Seti2 = Seti1.clone();
+                Seti2.name = "LR_Seti2";
+                Seti2.position.set(13.893, 0, 10.44);
+                scene.add(Seti2);
+                spawnedObj.push(child);
+              }
             }
 
             if (child.name == "mesh_36_0") {
-              let Couch1;
-              Couch1 = child.parent;
-              var Couch2;
-              Couch2 = Couch1.clone();
-              Couch2.name = "LR_Couch2";
-              Couch2.position.set(-0.599, 1.037, 15.019);
-              Couch2.rotation.y = 3.14159;
-              scene.add(Couch2);
+              if (!couchSpawned) {
+                couchSpawned = true;
+                let Couch1;
+                Couch1 = child.parent;
+                var Couch2;
+                Couch2 = Couch1.clone();
+                Couch2.name = "LR_Couch2";
+                Couch2.position.set(-0.599, 1.037, 15.019);
+                Couch2.rotation.y = 3.14159;
+                scene.add(Couch2);
+                spawnedObj.push(child);
+              }
+            }
+
+            if (child.name == "mesh_31_0") {
+              if (!sofaSpawned) {
+                sofaSpawned = true;
+                let Sofa2;
+                Sofa2 = child.parent;
+                var Sofa1;
+                Sofa1 = Sofa2.clone();
+                Sofa1.name = "LR_Sofa1";
+                Sofa1.position.set(-6.157, 1.725, 12.174);
+                Sofa1.rotation.y = 0.53996509598604;
+                scene.add(Sofa1);
+                spawnedObj.push(child);
+              }
             } else {
               spawnedObj.push(child);
             }
           }
         });
         scene.add(meshes);
-        //console.log(spawnedObj);
+        console.log(spawnedObj);
         isChangeableModelLoaded = true;
       },
       undefined,
