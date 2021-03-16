@@ -20,6 +20,7 @@ let scene,
   controllerGrip1,
   controllerGrip2;
 let container;
+const mouse = new THREE.Vector2();
 let teleportation = false;
 
 const tempMatrix = new THREE.Matrix4();
@@ -120,6 +121,10 @@ window.addEventListener("resize", () => {
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
+
+window.addEventListener("pointerdown", () => {});
+
+window.addEventListener("pointerup", () => {});
 
 controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
@@ -241,7 +246,6 @@ loader.load(
   }
 );
 
-const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 reticle = new THREE.Mesh(
   new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
@@ -391,16 +395,6 @@ window.addEventListener("click", () => {
       //console.log(currentIntersectingObj);
       selectedObjProp[currentIntersectingObj.name](currentIntersectingObj);
     }
-  } else {
-    const teleportIntersects = raycaster.intersectObjects(teleportFloors);
-
-    if (teleportIntersects[0]) {
-      reticle.visible = true;
-      let location = teleportIntersects[0].point;
-      reticle.position.set(location.x, location.y + 0.01, location.z);
-    } else {
-      reticle.visible = false;
-    }
   }
 });
 
@@ -469,6 +463,25 @@ function cleanIntersected() {
     const object = intersected.pop();
   }
 }
+
+window.addEventListener("pointermove", (event) => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  if (teleportation === true) {
+    raycaster.setFromCamera(mouse, camera);
+
+    const teleportIntersects = raycaster.intersectObjects(teleportFloors);
+
+    if (teleportIntersects[0]) {
+      reticle.visible = true;
+      let location = teleportIntersects[0].point;
+      reticle.position.set(location.x, location.y + 0.01, location.z);
+    } else {
+      reticle.visible = false;
+    }
+  }
+});
 
 const animate = function () {
   renderer.setAnimationLoop(render);
