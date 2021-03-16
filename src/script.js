@@ -25,8 +25,10 @@ let teleportation = false;
 const tempMatrix = new THREE.Matrix4();
 const intersected = [];
 var floorMesh;
+var kitchenFloor;
 let teleportFloors = [];
 let floorMeshSpawned = false;
+let kitchenFloorMeshSpawned = false;
 
 const sizes = {
   width: window.innerWidth,
@@ -177,7 +179,6 @@ for (var i in ChangeableObj) {
         meshes.traverse((child) => {
           if (child.isMesh) {
             if (child.name == "LR_FloorMesh") {
-              console.log(child.name);
               if (!floorMeshSpawned) {
                 floorMeshSpawned = true;
                 spawnedObj.push(child);
@@ -185,12 +186,25 @@ for (var i in ChangeableObj) {
                 teleportFloors.push(floorMesh);
                 console.log(teleportFloors);
               }
+            }
+            if (child.name == "KitchenFloorMesh") {
+              if (!kitchenFloorMeshSpawned) {
+                kitchenFloorMeshSpawned = true;
+                spawnedObj.push(child);
+                kitchenFloor = findObjectByKey(
+                  spawnedObj,
+                  "name",
+                  "KitchenFloorMesh"
+                );
+                teleportFloors.push(kitchenFloor);
+              }
             } else {
               spawnedObj.push(child);
             }
           }
         });
         scene.add(meshes);
+        //console.log(spawnedObj);
         isChangeableModelLoaded = true;
       },
       undefined,
@@ -340,9 +354,7 @@ window.addEventListener("click", () => {
       x: targetLocation.x,
       y: currentLocation.y,
       z: targetLocation.z,
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
+      onUpdate: () => {},
     });
 
     controls.target.set(targetLocation.x, currentLocation.y, targetLocation.z);
