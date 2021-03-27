@@ -422,9 +422,9 @@ window.addEventListener("click", () => {
       onUpdate: () => {},
     });
 
-    controls.target.set(targetLocation.x, currentLocation.y, targetLocation.z);
-
     controls.update();
+    controls.enableZoom = true;
+    controls.enablePan = true;
   }
 
   //MouseRaycasting
