@@ -73,6 +73,13 @@ document.body.appendChild(renderer.domElement);
 let VrButton;
 document.body.appendChild((VrButton = VRButton.createButton(renderer)));
 
+const loadingManager = new THREE.LoadingManager(() => {
+  const loadingScreen = document.getElementById("loading-screen");
+  loadingScreen.classList.add("fade-out");
+
+  loadingScreen.addEventListener("transitionend", onTransitionEnd);
+});
+
 const container = new ThreeMeshUI.Block({
   width: 1.2,
   height: 0.7,
@@ -229,7 +236,6 @@ for (var i in ChangeableObj) {
                 spawnedObj.push(child);
                 floorMesh = findObjectByKey(spawnedObj, "name", "LR_FloorMesh");
                 teleportFloors.push(floorMesh);
-                console.log(teleportFloors);
               }
             }
             if (child.name == "KitchenFloorMesh") {
@@ -321,7 +327,6 @@ for (var i in ChangeableObj) {
           }
         });
         scene.add(meshes);
-        console.log(spawnedObj);
         isChangeableModelLoaded = true;
       },
       undefined,
@@ -343,12 +348,13 @@ function findObjectByKey(array, name, value) {
 
 var mesh;
 
-loader = new GLTFLoader();
+loader = new GLTFLoader(loadingManager);
 loader.load(
   "Meshes/Unchangeable/scene.glb",
   function (gltf) {
     mesh = gltf.scene;
     scene.add(mesh);
+    loadingScreen.style.visibility = "hidden";
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -600,6 +606,10 @@ window.addEventListener("pointermove", (event) => {
 const animate = function () {
   renderer.setAnimationLoop(render);
 };
+
+function onTransitionEnd(event) {
+  event.target.remove();
+}
 
 function render() {
   cleanIntersected();
