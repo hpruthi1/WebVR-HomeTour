@@ -24,8 +24,6 @@ let scene,
 const mouse = new THREE.Vector2();
 let spawnedObj = [];
 let teleportation = false;
-let selectState = false;
-let touchState = false;
 
 const tempMatrix = new THREE.Matrix4();
 const intersected = [];
@@ -616,6 +614,12 @@ function render() {
   intersectObjects(controller1);
   intersectObjects(controller2);
   ThreeMeshUI.update();
+  if (teleportation === true) {
+    teleportBTN.backgroundUniforms.u_color.value = new THREE.Color(
+      "rgb(0, 255, 0)"
+    );
+  }
+
   renderer.render(scene, camera);
 }
 animate();
