@@ -22,6 +22,8 @@ class VRButton {
 				button.textContent = 'EXIT VR';
 
 				currentSession = session;
+				const eventVR = new CustomEvent('VREntered', {});
+                button.dispatchEvent(eventVR);
 
 			}
 

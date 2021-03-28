@@ -7,6 +7,7 @@ import { VRButton } from "../src/VRButton.js";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
+import ThreeMeshUI from "three-mesh-ui";
 
 let scene,
   camera,
@@ -19,9 +20,12 @@ let scene,
   controller2,
   controllerGrip1,
   controllerGrip2;
-let container;
+
 const mouse = new THREE.Vector2();
+let spawnedObj = [];
 let teleportation = false;
+let selectState = false;
+let touchState = false;
 
 const tempMatrix = new THREE.Matrix4();
 const intersected = [];
@@ -71,6 +75,43 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 let VrButton;
 document.body.appendChild((VrButton = VRButton.createButton(renderer)));
+
+const container = new ThreeMeshUI.Block({
+  width: 1.2,
+  height: 0.7,
+  padding: 0.2,
+  fontFamily: "Fonts/Roboto-msdf.json",
+  fontTexture: "Fonts/Roboto-msdf.png",
+  fontSize: 0.1,
+  alignContent: "center", // could be 'center' or 'left'
+  justifyContent: "center", // could be 'center' or 'start'
+  backgroundOpacity: 0,
+});
+
+const buttonOptions = {
+  width: 0.4,
+  height: 0.15,
+  justifyContent: "center",
+  alignContent: "center",
+  offset: 0.05,
+  margin: 0.02,
+  borderRadius: 0.075,
+};
+
+const teleportBTN = new ThreeMeshUI.Block(buttonOptions);
+teleportBTN.add(new ThreeMeshUI.Text({ content: "Teleport" }));
+
+container.add(teleportBTN);
+teleportBTN.userData.isUi = true;
+teleportBTN.name = "TeleportBTN";
+spawnedObj.push(teleportBTN);
+
+container.position.set(3.5, 4, 4);
+container.rotation.x = -0.55;
+container.name = "Container";
+
+scene.add(container);
+console.log(container);
 
 //controllers
 
@@ -172,7 +213,6 @@ let ChangeableObj = {
   KitchenFloor: "Meshes/Changeable/KitchenFloor.glb",
 };
 
-let spawnedObj = [];
 let isChangeableModelLoaded = false;
 
 const loader1 = new GLTFLoader();
@@ -429,35 +469,55 @@ window.addEventListener("click", () => {
 
   //MouseRaycasting
   raycaster.setFromCamera(mouse, camera);
+  let intersects = raycast();
 
-  if (teleportation === false) {
-    let intersects = raycaster.intersectObjects(spawnedObj);
+  if (intersects) {
+    currentIntersectingObj = intersects.object;
 
-    if (intersects.length) {
-      currentIntersectingObj = intersects[0].object.parent;
-      console.log(currentIntersectingObj);
+    // camera.lookAt(
+    //   intersects[0].object.position.x,
+    //   intersects[0].object.position.y + 1,
+    //   intersects[0].object.position.z - 0.1
+    // );
+    // camera.updateProjectionMatrix();
 
-      // camera.lookAt(
-      //   intersects[0].object.position.x,
-      //   intersects[0].object.position.y + 1,
-      //   intersects[0].object.position.z - 0.1
-      // );
-      // camera.updateProjectionMatrix();
-
-      // console.log(camera.position);
+    // console.log(camera.position);
+    if (currentIntersectingObj.userData.isUi) {
+      console.log("UI");
+      let isTeleporting = teleportation;
+      teleportation = !isTeleporting;
+      console.log(teleportation);
     } else {
-      currentIntersectingObj = null;
+      let temp = currentIntersectingObj.parent;
+      if (temp && temp.name in selectedObjProp) {
+        //console.log(currentIntersectingObj);
+        selectedObjProp[temp.name](temp);
+      }
+      console.log(temp);
     }
-
-    if (
-      currentIntersectingObj &&
-      currentIntersectingObj.name in selectedObjProp
-    ) {
-      //console.log(currentIntersectingObj);
-      selectedObjProp[currentIntersectingObj.name](currentIntersectingObj);
-    }
+  } else {
+    currentIntersectingObj = null;
   }
 });
+
+function raycast() {
+  return spawnedObj.reduce((closestIntersection, obj) => {
+    const intersection = raycaster.intersectObject(obj, true);
+
+    if (!intersection[0]) return closestIntersection;
+
+    if (
+      !closestIntersection ||
+      intersection[0].distance < closestIntersection.distance
+    ) {
+      intersection[0].object = obj;
+
+      return intersection[0];
+    } else {
+      return closestIntersection;
+    }
+  }, null);
+}
 
 //VRControllerEvents
 
@@ -466,11 +526,11 @@ function onSelectStart(event) {
 
   const intersections = getIntersections(controller);
 
-  if (intersections.length > 0) {
-    const intersection = intersections[0];
+  if (intersections) {
+    const intersection = intersections;
 
-    const object = intersection.object.parent;
-    controller.attach(object);
+    const object = intersection.object;
+    controller.attach(object.parent);
     console.log(object);
 
     controller.userData.selected = object;
@@ -498,7 +558,7 @@ function getIntersections(controller) {
   raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
   raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-  return raycaster.intersectObjects(spawnedObj);
+  return raycast();
 }
 
 function intersectObjects(controller) {
@@ -507,11 +567,11 @@ function intersectObjects(controller) {
   const line = controller.getObjectByName("line");
   const intersections = getIntersections(controller);
 
-  if (intersections.length > 0) {
-    const intersection = intersections[0];
+  if (intersections) {
+    const intersection = intersections;
 
-    const object = intersection.object.parent;
-    intersected.push(object);
+    const object = intersection.object;
+    intersected.push(object.parent);
 
     line.scale.z = intersection.distance;
   } else {
@@ -552,6 +612,7 @@ function render() {
   cleanIntersected();
   intersectObjects(controller1);
   intersectObjects(controller2);
+  ThreeMeshUI.update();
   renderer.render(scene, camera);
 }
 animate();
