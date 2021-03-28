@@ -31,9 +31,11 @@ const tempMatrix = new THREE.Matrix4();
 const intersected = [];
 var floorMesh;
 var kitchenFloor;
+var BR1FloorMesh;
 let teleportFloors = [];
 let floorMeshSpawned = false;
 let kitchenFloorMeshSpawned = false;
+let BR1FloorMeshSpawned = false;
 let couchSpawned = false;
 let sofaSpawned = false;
 let setiSpawned = false;
@@ -60,11 +62,6 @@ camera = new THREE.PerspectiveCamera(
 camera.position.set(2.47, 4.67, 12.47);
 camera.rotation.set(0.0, 0.28, 0.0);
 
-// let cameraHolder = new THREE.Object3D();
-// cameraHolder.add(camera);
-// console.log(cameraHolder);
-// scene.add(cameraHolder);
-
 //renderer
 
 renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -83,19 +80,18 @@ const container = new ThreeMeshUI.Block({
   fontFamily: "Fonts/Roboto-msdf.json",
   fontTexture: "Fonts/Roboto-msdf.png",
   fontSize: 0.1,
-  alignContent: "center", // could be 'center' or 'left'
-  justifyContent: "center", // could be 'center' or 'start'
+  alignContent: "center",
+  justifyContent: "center",
   backgroundOpacity: 0,
 });
 
 const buttonOptions = {
-  width: 0.4,
-  height: 0.15,
+  width: 1,
+  height: 1,
   justifyContent: "center",
   alignContent: "center",
   offset: 0.05,
   margin: 0.02,
-  borderRadius: 0.075,
 };
 
 const teleportBTN = new ThreeMeshUI.Block(buttonOptions);
@@ -106,7 +102,7 @@ teleportBTN.userData.isUi = true;
 teleportBTN.name = "TeleportBTN";
 spawnedObj.push(teleportBTN);
 
-container.position.set(3.5, 4, 4);
+container.position.set(3, 5, 4);
 container.rotation.x = -0.55;
 container.name = "Container";
 
@@ -151,10 +147,9 @@ line.scale.z = 5;
 controller1.add(line.clone());
 controller2.add(line.clone());
 
-// VrButton.addEventListener("VREntered", () => {
-//   cameraHolder.position.set(1.31, -1.57, -0.55);
-//   cameraHolder.rotation.set(0.0, 0.28, 0.0);
-// });
+VrButton.addEventListener("VREntered", () => {
+  scene.remove(container);
+});
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
@@ -183,7 +178,7 @@ light.shadow.camera.bottom = -2;
 light.shadow.camera.right = 2;
 light.shadow.camera.left = -2;
 light.shadow.mapSize.set(4096, 4096);
-//scene.add(light);
+scene.add(light);
 
 let ChangeableObj = {
   BR1_Bulb: "Meshes/Changeable/BR1_Bulb.glb",
@@ -230,6 +225,7 @@ for (var i in ChangeableObj) {
             if (child.name == "LR_FloorMesh") {
               if (!floorMeshSpawned) {
                 floorMeshSpawned = true;
+                child.receiveShadow = true;
                 spawnedObj.push(child);
                 floorMesh = findObjectByKey(spawnedObj, "name", "LR_FloorMesh");
                 teleportFloors.push(floorMesh);
@@ -239,6 +235,7 @@ for (var i in ChangeableObj) {
             if (child.name == "KitchenFloorMesh") {
               if (!kitchenFloorMeshSpawned) {
                 kitchenFloorMeshSpawned = true;
+                child.receiveShadow = true;
                 spawnedObj.push(child);
                 kitchenFloor = findObjectByKey(
                   spawnedObj,
@@ -246,6 +243,20 @@ for (var i in ChangeableObj) {
                   "KitchenFloorMesh"
                 );
                 teleportFloors.push(kitchenFloor);
+              }
+            }
+
+            if (child.name == "BR1_FloorMesh") {
+              if (!BR1FloorMeshSpawned) {
+                BR1FloorMeshSpawned = true;
+                child.receiveShadow = true;
+                spawnedObj.push(child);
+                BR1FloorMesh = findObjectByKey(
+                  spawnedObj,
+                  "name",
+                  "BR1_FloorMesh"
+                );
+                teleportFloors.push(BR1FloorMesh);
               }
             }
 
@@ -362,11 +373,6 @@ folder1.open();
 let selectedObjProp = {
   LR_Floor: (object) => {
     folder1.add(object, "visible").name(object.name);
-    // if (object.visible === false) {
-    //   scene.remove(object.parent);
-    //   console.log("Removed");
-    // }
-
     folder1
       .add(object.children[0].material, "metalness")
       .min(0)
@@ -474,23 +480,12 @@ window.addEventListener("click", () => {
   if (intersects) {
     currentIntersectingObj = intersects.object;
 
-    // camera.lookAt(
-    //   intersects[0].object.position.x,
-    //   intersects[0].object.position.y + 1,
-    //   intersects[0].object.position.z - 0.1
-    // );
-    // camera.updateProjectionMatrix();
-
-    // console.log(camera.position);
     if (currentIntersectingObj.userData.isUi) {
-      console.log("UI");
       let isTeleporting = teleportation;
       teleportation = !isTeleporting;
-      console.log(teleportation);
     } else {
       let temp = currentIntersectingObj.parent;
       if (temp && temp.name in selectedObjProp) {
-        //console.log(currentIntersectingObj);
         selectedObjProp[temp.name](temp);
       }
       console.log(temp);
@@ -533,8 +528,7 @@ function onSelectStart(event) {
     controller.attach(object.parent);
     console.log(object);
 
-    controller.userData.selected = object;
-    console.log(controller.userData.selected);
+    controller.userData.selected = object.parent;
   }
 }
 
@@ -546,7 +540,6 @@ function onSelectEnd(event) {
     scene.attach(object);
 
     controller.userData.selected = undefined;
-    console.log(controller.userData.selected);
   }
 }
 
