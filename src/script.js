@@ -366,6 +366,30 @@ reticle = new THREE.Mesh(
 reticle.visible = false;
 scene.add(reticle);
 
+function CreateUI(selectedObj, offset, text) {
+  const container = new ThreeMeshUI.Block({
+    width: 1.2,
+    height: 0.7,
+    padding: 0.2,
+    fontFamily: "Fonts/Roboto-msdf.json",
+    fontTexture: "Fonts/Roboto-msdf.png",
+    fontSize: 0.1,
+    alignContent: "center",
+    justifyContent: "center",
+  });
+
+  container.position.set(selectedObj.position.y + offset);
+
+  container.add(
+    new ThreeMeshUI.Text({
+      content: text,
+      fontSize: 0.055,
+    })
+  );
+
+  scene.add(container);
+}
+
 let currentIntersectingObj = null;
 var folder1 = gui.addFolder("Visibility");
 folder1.open();
