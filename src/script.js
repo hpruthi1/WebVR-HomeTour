@@ -112,7 +112,6 @@ container.rotation.x = -0.55;
 container.name = "Container";
 
 scene.add(container);
-console.log(container);
 
 //controllers
 
@@ -212,8 +211,6 @@ let ChangeableObj = {
   Kitchen_Led: "Meshes/Changeable/Kitchen_LED5.glb",
   KitchenFloor: "Meshes/Changeable/KitchenFloor.glb",
 };
-
-let isChangeableModelLoaded = false;
 
 const loader1 = new GLTFLoader();
 
@@ -325,7 +322,6 @@ for (var i in ChangeableObj) {
           }
         });
         scene.add(meshes);
-        isChangeableModelLoaded = true;
       },
       undefined,
       function (error) {
@@ -540,22 +536,21 @@ function onSelectStart(event) {
 
     let object = intersection.object;
 
-    let isTeleporting = teleportation;
-    teleportation = !isTeleporting;
-    console.log(teleportation);
-
     if (object.userData.isUi) {
-      if (teleportation) {
-        object.backgroundUniforms.u_color.value = new THREE.Color(
-          "rgb(0, 255, 0)"
-        );
-      } else {
-        object.backgroundUniforms.u_color.value = new THREE.Color(
-          "rgb(255,0, 0)"
-        );
+      if (object.name == "TeleportBTN") {
+        let isTeleporting = teleportation;
+        teleportation = !isTeleporting;
+        if (teleportation) {
+          object.backgroundUniforms.u_color.value = new THREE.Color(
+            "rgb(0, 255, 0)"
+          );
+        } else {
+          object.backgroundUniforms.u_color.value = new THREE.Color(
+            "rgb(255,0, 0)"
+          );
+        }
       }
     }
-
     if (!teleportation) {
       //drag
       controller.attach(object.parent);
@@ -644,6 +639,10 @@ function render() {
   intersectObjects(controller1);
   intersectObjects(controller2);
   ThreeMeshUI.update();
+
+  if (renderer.xr.isPresenting) {
+    //console.log("VR");
+  }
 
   renderer.render(scene, camera);
 }
