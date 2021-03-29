@@ -107,7 +107,7 @@ teleportBTN.userData.isUi = true;
 teleportBTN.name = "TeleportBTN";
 spawnedObj.push(teleportBTN);
 
-container.position.set(3, 5, 4);
+container.position.set(3, 4.5, 4);
 container.rotation.x = -0.55;
 container.name = "Container";
 
@@ -153,7 +153,7 @@ controller1.add(line.clone());
 controller2.add(line.clone());
 
 VrButton.addEventListener("VREntered", () => {
-  scene.remove(container);
+  //scene.remove(container);
 });
 
 window.addEventListener("resize", () => {
@@ -487,6 +487,16 @@ window.addEventListener("click", () => {
     if (currentIntersectingObj.userData.isUi) {
       let isTeleporting = teleportation;
       teleportation = !isTeleporting;
+      console.log(teleportation);
+      if (teleportation) {
+        currentIntersectingObj.backgroundUniforms.u_color.value = new THREE.Color(
+          "rgb(0, 255, 0)"
+        );
+      } else {
+        currentIntersectingObj.backgroundUniforms.u_color.value = new THREE.Color(
+          "rgb(255,0, 0)"
+        );
+      }
     } else {
       let temp = currentIntersectingObj.parent;
       if (temp && temp.name in selectedObjProp) {
@@ -526,13 +536,33 @@ function onSelectStart(event) {
   const intersections = getIntersections(controller);
 
   if (intersections) {
-    const intersection = intersections;
+    let intersection = intersections;
 
-    const object = intersection.object;
-    controller.attach(object.parent);
-    console.log(object);
+    let object = intersection.object;
 
-    controller.userData.selected = object.parent;
+    let isTeleporting = teleportation;
+    teleportation = !isTeleporting;
+    console.log(teleportation);
+
+    if (object.userData.isUi) {
+      if (teleportation) {
+        object.backgroundUniforms.u_color.value = new THREE.Color(
+          "rgb(0, 255, 0)"
+        );
+      } else {
+        object.backgroundUniforms.u_color.value = new THREE.Color(
+          "rgb(255,0, 0)"
+        );
+      }
+    }
+
+    if (!teleportation) {
+      //drag
+      controller.attach(object.parent);
+      console.log(object);
+
+      controller.userData.selected = object.parent;
+    }
   }
 }
 
@@ -614,11 +644,6 @@ function render() {
   intersectObjects(controller1);
   intersectObjects(controller2);
   ThreeMeshUI.update();
-  if (teleportation === true) {
-    teleportBTN.backgroundUniforms.u_color.value = new THREE.Color(
-      "rgb(0, 255, 0)"
-    );
-  }
 
   renderer.render(scene, camera);
 }
