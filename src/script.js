@@ -626,7 +626,7 @@ function intersectObjects(controller) {
 
 function cleanIntersected() {
   while (intersected.length) {
-    const object = intersected.pop();
+    intersected.pop();
   }
 }
 
