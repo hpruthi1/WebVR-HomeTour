@@ -479,6 +479,12 @@ window.addEventListener("click", () => {
       y: currentLocation.y,
       z: targetLocation.z,
       onUpdate: () => {},
+      onComplete: () => {
+        if (teleportation) {
+          controls.autoRotate = true;
+          controls.autoRotateSpeed = 0.5;
+        }
+      },
     });
 
     controls.update();
@@ -561,6 +567,7 @@ function onSelectStart(event) {
           object.backgroundUniforms.u_color.value = new THREE.Color(
             "rgb(255,0, 0)"
           );
+          controls.autoRotate = false;
         }
       }
     } else if (object.userData.isFloor && teleportation === true) {
@@ -568,8 +575,12 @@ function onSelectStart(event) {
         x: intersection.point.x,
         y: parentCam.position.y,
         z: intersection.point.z,
-        onUpdate: () => {
-          console.log("Moving");
+        onUpdate: () => {},
+        onComplete: () => {
+          if (teleportation) {
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+          }
         },
       });
     } else {
@@ -670,6 +681,9 @@ function onTransitionEnd(event) {
 
 function render() {
   ThreeMeshUI.update();
+  if (teleportation) {
+    controls.update();
+  }
 
   if (renderer.xr.isPresenting) {
     cleanIntersected();
