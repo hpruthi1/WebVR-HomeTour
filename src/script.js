@@ -575,10 +575,16 @@ function onSelectStart(event) {
     } else {
       if (!teleportation) {
         //drag
-        controller.attach(object.parent);
-        console.log(object);
+        let parentObj = object.parent;
+        controller.attach(parentObj);
+        parentObj.traverse((child) => {
+          if (child.isMesh) {
+            child.material.emissive.b = 1;
+          }
+        });
+        console.log(parentObj);
 
-        controller.userData.selected = object.parent;
+        controller.userData.selected = parentObj;
       }
     }
   }
@@ -589,6 +595,11 @@ function onSelectEnd(event) {
 
   if (controller.userData.selected !== undefined) {
     const object = controller.userData.selected;
+    object.traverse((child) => {
+      if (child.isMesh) {
+        child.material.emissive.b = 0;
+      }
+    });
     scene.attach(object);
 
     controller.userData.selected = undefined;
@@ -658,13 +669,12 @@ function onTransitionEnd(event) {
 }
 
 function render() {
-  cleanIntersected();
-  intersectObjects(controller1);
-  intersectObjects(controller2);
   ThreeMeshUI.update();
 
   if (renderer.xr.isPresenting) {
-    //console.log("VR");
+    cleanIntersected();
+    intersectObjects(controller1);
+    intersectObjects(controller2);
   }
 
   renderer.render(scene, camera);
