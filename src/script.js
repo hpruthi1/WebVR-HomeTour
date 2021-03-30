@@ -39,6 +39,9 @@ let sofaSpawned = false;
 let setiSpawned = false;
 let doorSpawned = false;
 
+let parentCam = new THREE.Object3D();
+let VRModeEnabled = false;
+
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -58,7 +61,6 @@ camera = new THREE.PerspectiveCamera(
 );
 
 camera.position.set(2.47, 4.67, 12.47);
-camera.rotation.set(0.0, 0.28, 0.0);
 
 //renderer
 
@@ -152,7 +154,11 @@ controller1.add(line.clone());
 controller2.add(line.clone());
 
 VrButton.addEventListener("VREntered", () => {
-  //scene.remove(container);
+  VRModeEnabled = true;
+  camera.position.set(0, 0, 0);
+  parentCam.position.set(2.47, 4.67, 12.47);
+  parentCam.add(camera);
+  scene.add(parentCam);
 });
 
 window.addEventListener("resize", () => {
@@ -228,6 +234,7 @@ for (var i in ChangeableObj) {
               if (!floorMeshSpawned) {
                 floorMeshSpawned = true;
                 child.receiveShadow = true;
+                child.userData.isFloor = true;
                 spawnedObj.push(child);
                 floorMesh = findObjectByKey(spawnedObj, "name", "LR_FloorMesh");
                 teleportFloors.push(floorMesh);
@@ -237,6 +244,7 @@ for (var i in ChangeableObj) {
               if (!kitchenFloorMeshSpawned) {
                 kitchenFloorMeshSpawned = true;
                 child.receiveShadow = true;
+                child.userData.isFloor = true;
                 spawnedObj.push(child);
                 kitchenFloor = findObjectByKey(
                   spawnedObj,
@@ -251,6 +259,7 @@ for (var i in ChangeableObj) {
               if (!BR1FloorMeshSpawned) {
                 BR1FloorMeshSpawned = true;
                 child.receiveShadow = true;
+                child.userData.isFloor = true;
                 spawnedObj.push(child);
                 BR1FloorMesh = findObjectByKey(
                   spawnedObj,
@@ -366,29 +375,7 @@ reticle = new THREE.Mesh(
 reticle.visible = false;
 scene.add(reticle);
 
-function CreateUI(selectedObj, offset, text) {
-  const container = new ThreeMeshUI.Block({
-    width: 1.2,
-    height: 0.7,
-    padding: 0.2,
-    fontFamily: "Fonts/Roboto-msdf.json",
-    fontTexture: "Fonts/Roboto-msdf.png",
-    fontSize: 0.1,
-    alignContent: "center",
-    justifyContent: "center",
-  });
-
-  container.position.set(selectedObj.position.y + offset);
-
-  container.add(
-    new ThreeMeshUI.Text({
-      content: text,
-      fontSize: 0.055,
-    })
-  );
-
-  scene.add(container);
-}
+function CreateUI(selectedObj, offset, text) {}
 
 let currentIntersectingObj = null;
 var folder1 = gui.addFolder("Visibility");
@@ -406,10 +393,12 @@ let selectedObjProp = {
 
   LR_Sofa2: (object) => {
     folder1.add(object, "visible").name(object.name);
+    console.log(object);
   },
 
   LR_Couch1: (object) => {
     folder1.add(object, "visible").name(object.name);
+    CreateUI(object, 0.5, "Couch");
   },
 
   LR_DiningTable: (object) => {
@@ -574,13 +563,23 @@ function onSelectStart(event) {
           );
         }
       }
-    }
-    if (!teleportation) {
-      //drag
-      controller.attach(object.parent);
-      console.log(object);
+    } else if (object.userData.isFloor && teleportation === true) {
+      gsap.to(parentCam.position, 2, {
+        x: intersection.point.x,
+        y: parentCam.position.y,
+        z: intersection.point.z,
+        onUpdate: () => {
+          console.log("Moving");
+        },
+      });
+    } else {
+      if (!teleportation) {
+        //drag
+        controller.attach(object.parent);
+        console.log(object);
 
-      controller.userData.selected = object.parent;
+        controller.userData.selected = object.parent;
+      }
     }
   }
 }
