@@ -120,12 +120,12 @@ scene.add(container);
 controller1 = renderer.xr.getController(0);
 controller1.addEventListener("selectstart", onSelectStart);
 controller1.addEventListener("selectend", onSelectEnd);
-scene.add(controller1);
+parentCam.add(controller1);
 
 controller2 = renderer.xr.getController(1);
 controller2.addEventListener("selectstart", onSelectStart);
 controller2.addEventListener("selectend", onSelectEnd);
-scene.add(controller2);
+parentCam.add(controller2);
 
 const controllerModelFactory = new XRControllerModelFactory();
 
@@ -133,13 +133,13 @@ controllerGrip1 = renderer.xr.getControllerGrip(0);
 controllerGrip1.add(
   controllerModelFactory.createControllerModel(controllerGrip1)
 );
-scene.add(controllerGrip1);
+parentCam.add(controllerGrip1);
 
 controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(
   controllerModelFactory.createControllerModel(controllerGrip2)
 );
-scene.add(controllerGrip2);
+parentCam.add(controllerGrip2);
 
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, 0, 0),
